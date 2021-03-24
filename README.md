@@ -6,10 +6,11 @@ Data could be visible and filtered / searched via web interface.
 
 Required:
 1. linux web server with php support  
-2. python3
-3. sqlite3
-4. js [code.jquery.com](https://code.jquery.com) (see [install.txt](install.txt))   
-5. datatables from [cdn.datatables.net](https://cdn.datatables.net) (see [install.txt](install.txt))
+2. php
+3. python3
+4. sqlite3
+5. js [code.jquery.com](https://code.jquery.com) (see [install.txt](install.txt))   
+6. datatables from [cdn.datatables.net](https://cdn.datatables.net) (see [install.txt](install.txt))
 
 Common view current info  
 ![Common view current info](Img01.png "Common view current info]")
