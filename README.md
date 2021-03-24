@@ -8,8 +8,8 @@ Required:
 1. linux web server  
 2. python3
 3. sqlite3
-4. js code.jquery.com (see [install.txt](install.txt))   
-5. datatables from cdn.datatables.net (see [install.txt](install.txt))
+4. js [code.jquery.com](https://code.jquery.com) (see [install.txt](install.txt))   
+5. datatables from [cdn.datatables.net](https://cdn.datatables.net) (see [install.txt](install.txt))
 
 Common view current info  
 ![Common view current info](Img01.png "Common view current info]")
