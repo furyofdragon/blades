@@ -5,7 +5,7 @@ Gets data from chassis and stores it in sqlite database.
 Data could be visible and filtered / searched via web interface.
 
 Required:
-1. linux web server  
+1. linux web server with php support  
 2. python3
 3. sqlite3
 4. js [code.jquery.com](https://code.jquery.com) (see [install.txt](install.txt))   
