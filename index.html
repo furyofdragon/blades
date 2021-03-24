@@ -1,0 +1,183 @@
+<html>
+
+<!-- jQuery -->
+<script type="text/javascript" charset="utf8" src="./js/jquery-3.5.1.min.js"></script>
+
+<!-- DataTables -->
+<script type="text/javascript" charset="utf8" src="./js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" charset="utf8" src="./js/dataTables.searchPanes.min.js"></script>
+<script type="text/javascript" charset="utf8" src="./js/dataTables.select.min.js"></script>
+<script type="text/javascript" charset="utf8" src="./js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" charset="utf8" src="./js/dataTables.searchBuilder.min.js"></script>
+<!-- DataTables CSS -->
+<link rel="stylesheet" type="text/css" href="./css/jquery.dataTables.min.css">
+<link rel="stylesheet" type="text/css" href="./css/searchPanes.dataTables.min.css">
+<link rel="stylesheet" type="text/css" href="./css/select.dataTables.min.css">
+<link rel="stylesheet" type="text/css" href="./css/buttons.dataTables.min.css">
+<link rel="stylesheet" type="text/css" href="./css/searchBuilder.dataTables.min.css">
+
+<head>
+<style>
+/* Set height of body and the document to 100% to enable "full page tabs" */
+body, html {
+  height: 100%;
+  margin: 0;
+  font-family: Arial;
+}
+
+/* Style tab links */
+.tablink {
+  background-color: #555;
+  color: white;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  font-size: 17px;
+  width: 50%;
+}
+
+.tablink:hover {
+  background-color: #777;
+}
+
+/* Style the tab content (and add height:100% for full page content) */
+.tabcontent {
+  color: white;
+  display: none;
+  padding: 5px 5px;
+  height: 100%;
+}
+
+/* Table content */
+.table.dataTable  {
+  font-family: Arial;
+  font-size: 14px;
+}
+</style>
+</head>
+
+<button class="tablink" onclick="openPage('Current', this, 'CCCCCC')" id="defaultOpen">Current</button>
+<button class="tablink" onclick="openPage('History', this, '999999')">History</button>
+
+<div id="Current" class="tabcontent">
+<div>
+    <table id="current" class="table" width="100%" cellspacing="0">
+	<thead><tr><th>cmc</th><th>Slot</th><th>Tag</th><th>Type</th><th>Name</th><th>PowerState</th><th>biosVer</th><th>idracVer</th><th>idracIP</th><th>Gen</th>
+	<th>bmcMAC</th><th>nic1MAC</th><th>nic2MAC</th><th>glpiURL</th><th>glpiComment</th><th>Note</th></tr></thead>
+    </table>
+</div>
+</div>
+
+<div id="History" class="tabcontent">
+<div>
+    <table id="history" class="table" width="100%" cellspacing="0">
+	<thead><tr><th>cmc</th><th>Slot</th><th>Tag</th><th>Type</th><th>Name</th><th>PowerState</th><th>biosVer</th><th>idracVer</th><th>idracIP</th><th>Gen</th>
+	<th>bmcMAC</th><th>nic1MAC</th><th>nic2MAC</th><th>glpiURL</th><th>glpiComment</th><th>Note</th><th>Date</th><th>Active</th></tr></thead>
+    </table>
+</div>
+</div>
+
+<script>
+$(document).ready(function() {
+$('#current').dataTable({
+		"bProcessing": true,
+		"sAjaxSource": "rcurrent.php",
+		"aLengthMenu": [[10, 16, 32, -1], [10, 16, 32, "All"]],
+		"aoColumns": [
+				{ mData: 'cmc'        },
+				{ mData: 'slot'       },
+				{ mData: 'tag'        },
+				{ mData: 'type'       },
+				{ mData: 'name'       },
+				{ mData: 'powerstate' },
+				{ mData: 'biosver'    },
+				{ mData: 'idracver'   },
+				{ mData: 'idracip'    },
+				{ mData: 'gen'        },
+				{ mData: 'bmcmac'     },
+				{ mData: 'nic1mac'    },
+				{ mData: 'nic2mac'    },
+				{ mData: 'glpiurl'    },
+				{ mData: 'glpicomm'   },
+				{ mData: 'note'       }
+			],
+		"buttons": ['searchPanes'],
+		"searchPanes": {
+				layout: 'columns-5'
+			},
+		"dom": 'QBlfrtip',
+	});
+$('#history').dataTable({
+		"bProcessing": true,
+		"sAjaxSource": "rhistory.php",
+		"aLengthMenu": [[10, 16, 32, -1], [10, 16, 32, "All"]],
+		"aoColumns": [
+				{ mData: 'cmc'          },
+				{ mData: 'slot'         },
+				{ mData: 'tag'          },
+				{ mData: 'type'         },
+				{ mData: 'name'         },
+				{ mData: 'powerstate'   },
+				{ mData: 'biosver'      },
+				{ mData: 'idracver'     },
+				{ mData: 'idracip'      },
+				{ mData: 'gen'          },
+				{ mData: 'bmcmac'       },
+				{ mData: 'nic1mac'      },
+				{ mData: 'nic2mac'      },
+				{ mData: 'glpiurl'      },
+				{ mData: 'glpicomm'     },
+				{ mData: 'note'         },
+				{ mData: 'recorddate'   },
+				{ mData: 'recordactive' }
+			],
+		"buttons": ['searchPanes'],
+		"searchPanes": {
+				layout: 'columns-5'
+			},
+		"dom": 'QBlfrtip',
+	});
+	table.columns().every( function () {
+		var that = this;
+
+		$( 'input', this.footer() ).on( 'keyup change', function () {
+			if ( that.search() !== this.value ) {
+				that
+					search( this.value )
+					draw();
+				}
+		});
+	});
+});
+</script>
+
+<script>
+function openPage(pageName, elmnt, color) {
+  // Hide all elements with class="tabcontent" by default
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+
+  // Remove the background color of all tablinks/buttons
+  tablinks = document.getElementsByClassName("tablink");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].style.backgroundColor = "";
+  }
+
+  // Show the specific tab content
+  document.getElementById(pageName).style.display = "block";
+
+  // Add the specific color to the button used to open the tab content
+  elmnt.style.backgroundColor = color;
+}
+
+// Get the element with id="defaultOpen" and click on it
+document.getElementById("defaultOpen").click();
+</script>
+
+</html>
+

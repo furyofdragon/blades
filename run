@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cp /opt/cmcdb/blades.db /opt/cmcdb/blades_$(date +%Y-%m-%d-%H%M).db
+/opt/cmcdb/cmcblades-datacollector.py
+find /opt/cmcdb/ -name blades_.*db -mtime +30 -delete
