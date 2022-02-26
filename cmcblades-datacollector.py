@@ -275,7 +275,6 @@ def getcmcdata(cmc_host):
 
     data = getcmdoutput(client, cmd='getversion')
     pattern_slot  = re.compile('^[S|s]erver-(\w+)\s+.*$')
-#   pattern_blade = re.compile('^[S|s]erver-(\w+)\s+([0-9.]+\s\(.*\))\s+(\w+\s?\w+)\s+(\w+)\s+.*$')
     pattern_blade = re.compile('^[S|s]erver-(?P<slot>\w+)\s+(?P<idracver>[0-9.]+\s\(.*\))\s+(?P<bladetype>\w+.*)\s+(?P<gen>iDRAC\d+)\s+.*$')
     pattern_eql   = re.compile('^[S|s]erver-(\w+)\s+([0-9.]+)+\s+([A-Z\-0-9]+)+\s+(\w+\s?\w+)\s+.*$')
     for line in data.split('\n'):
@@ -297,8 +296,8 @@ def getcmcdata(cmc_host):
                     slot = match.groupdict()['slot']
                 blades[slot] = dict.fromkeys(d_keys)
                 blades[slot]['iDRAC Version'] = match.groupdict()['idracver']
-                blades[slot]['Blade Type']    = match.groupdict()['bladetype'].strip()
-                blades[slot]['Gen']           = match.groupdict()['gen']
+                blades[slot]['Blade Type'] = match.groupdict()['bladetype'].strip()
+                blades[slot]['Gen'] = match.groupdict()['gen']
             match = re.search(pattern_eql,line)
             if match:
                 if len(match.group(1)) == 1:
@@ -307,8 +306,8 @@ def getcmcdata(cmc_host):
                     slot = match.group(1)
                 blades[slot] = dict.fromkeys(d_keys)
                 blades[slot]['iDRAC Version'] = match.group(2)
-                blades[slot]['Blade Type']    = match.group(3)
-                blades[slot]['Gen']           = match.group(4)
+                blades[slot]['Blade Type'] = match.group(3)
+                blades[slot]['Gen'] = match.group(4)
 
     data = getcmdoutput(client, cmd='getmodinfo')
     pattern = re.compile('^[S|s]erver-(\w+)\s+Present\s+([\w|\/]+)\s+(?:OK|Not OK|N/A)+\s+(.*)\s*$')
@@ -321,18 +320,18 @@ def getcmcdata(cmc_host):
                 slot = match.group(1)
             if blades.get(slot) == None:
                 blades[slot] = dict.fromkeys(d_keys)
-            blades[slot]['svcTag']     = match.group(3).rstrip().split()[0]
+            blades[slot]['svcTag'] = match.group(3).rstrip().split()[0]
             blades[slot]['PowerState'] = match.group(2)
 
     for i in blades:
         command = 'racadm getconfig -g cfgServerInfo -i ' + i.replace('0', '')
-        data    = getcmdoutput(client, cmd=command)
-        bmcMac  = re.search('cfgServerBmcMacAddress=(.*)$',data,flags=re.MULTILINE)
+        data = getcmdoutput(client, cmd=command)
+        bmcMac = re.search('cfgServerBmcMacAddress=(.*)$',data,flags=re.MULTILINE)
         nic1Mac = re.search('cfgServerNic1MacAddress=(.*)$',data,flags=re.MULTILINE)
         nic2Mac = re.search('cfgServerNic2MacAddress=(.*)$',data,flags=re.MULTILINE)
-        name    = re.search('cfgServerName=(.*)$',data,flags=re.MULTILINE)
-        bios    = re.search('cfgServerBIOS=(.*)$',data,flags=re.MULTILINE)
-        svcTag  = re.search('cfgServerServiceTag=(.*)$',data,flags=re.MULTILINE)
+        name = re.search('cfgServerName=(.*)$',data,flags=re.MULTILINE)
+        bios = re.search('cfgServerBIOS=(.*)$',data,flags=re.MULTILINE)
+        svcTag = re.search('cfgServerServiceTag=(.*)$',data,flags=re.MULTILINE)
 
         if bmcMac:
             blades[i]['BmcMac']     = bmcMac.group(1)
@@ -348,12 +347,12 @@ def getcmcdata(cmc_host):
         if svcTag:
             glpi_data = get_glpi_data(svcTag.group(1))
             blades[i]['GlpiComment'] = glpi_data['GlpiComment']
-            blades[i]['GlpiUrl']     = glpi_data['GlpiUrl']
+            blades[i]['GlpiUrl'] = glpi_data['GlpiUrl']
             if svcTag.group(1) is None or svcTag.group(1) == 'N/A' or svcTag.group(1).isspace():
                 logging.warning('Incorrect ST ' + str(cmc_host) + ' slot ' + str(i))
 
         command = 'racadm getniccfg -m server-' + i.replace('0', '')
-        data    = getcmdoutput(client, cmd=command)
+        data = getcmdoutput(client, cmd=command)
         idracIP = re.search('IP Address\s*=\s*([0-9.]+)$',data,flags=re.MULTILINE)
         if idracIP:
             blades[i]['iDRAC IP'] = idracIP.group(1)
