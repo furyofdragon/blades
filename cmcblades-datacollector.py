@@ -16,7 +16,6 @@ from collections import OrderedDict
 from datetime import datetime
 from pyzabbix import ZabbixAPI
 from curses.ascii import isspace
-from jinja2 import Template
 from concurrent.futures import ThreadPoolExecutor
 
 # ============= Common variables =========================
@@ -31,7 +30,6 @@ cmc_p1 = "<secret2>"
 db_f = '/opt/cmcdb/blades.db'
 thlimit = 20
 f_log = '/var/log/blades.log'
-datadir = '/var/www/html/cmc/data'
 # ========================================================
 
 
@@ -429,40 +427,6 @@ def refresh_cmc(conn, cmc, cmcblades):
     return
 
 
-def save_results(data_dir, cmc_host, blades):
-    t = Template(
-"""| *id* |  *svcTag* | *Blade Type* | *ServerName* | *PowerState* | *ServerBIOS* | *iDRAC Version*| *iDRAC IP* | *Gen* | *BmcMac* | *Nic1Mac* | *Nic2Mac* | *GLPI URL* | *GLPI Comment* |
-{% for blade, blade_details in data.items() %} | {% if blade is equalto '10' %} {{blade}}{% else %}{{blade|replace('0', '')}}{% endif %} | !{{blade_details['svcTag'] or ''}} | !{{blade_details['Blade Type'] or ''}} | {{blade_details['ServerName'] or ''}} | {{blade_details['PowerState'] or ''}} | {{blade_details['ServerBIOS'] or ''}} |  {{blade_details['iDRAC Version'] or ''}} | {{blade_details['iDRAC IP'] or ''}} |  {{blade_details['Gen'] or ''}} | {{blade_details['BmcMac'] or ''}} | {{blade_details['Nic1Mac'] or ''}} | {{blade_details['Nic2Mac'] or ''}} | {{blade_details['GlpiUrl'] or ''}} | {{blade_details['GlpiComment']|default('')|replace('\r\n', '<br>')}} |
-{% endfor %} """)
-
-    data_filename = os.path.join(data_dir if data_dir else '', cmc_host+'.txt')
-    with open(data_filename, "w+") as f:
-        if blades is not None and blades is not 'Error':
-            try:
-                f.write(t.render(data=blades))
-            except Exception as e:
-                print(cmc_host + ' : save to file error: ' + str(e))
-                print('Blades data:')
-                print(blades)
-                logging.error(cmc_host + ' : save to file error: ' + str(e))
-        else:
-            f.write("Can't connect to " + cmc_host + "\n")
-        f.write("\n")
-
-
-def updateTwiki(alldata):
-    # empty datadir
-    files = glob.glob(datadir + '/*')
-    for f in files:
-        os.remove(f)
-    # write files for twiki
-    for cmc in alldata.keys():
-        blades = alldata.get(cmc)
-        save_results(datadir, cmc, blades)
-    # call to old bash code
-    os.system("/opt/cmcdb/4twiki.sh")
-
-
 if __name__ == "__main__":
     logging.basicConfig(filename = f_log, level = logging.INFO, format='%(asctime)s %(levelname)s: %(threadName)s %(name)s: %(message)s')
     logging.getLogger("paramiko").setLevel(logging.WARNING)
@@ -497,10 +461,6 @@ if __name__ == "__main__":
             refresh_cmc(conn, cmc, cmcblades)
         conn.close()
         logging.info('DB updated in ' + str(time.time() - start_time2) + ' s')
-        logging.info('Starting twiki update')
-        start_time3 = time.time()
-        updateTwiki(alldata)
-        logging.info('Twiki updated in ' + str(time.time() - start_time3) + ' s')
     else:
         print('Empty input data (no cmc)')
         logging.error('Empty input data (no cmc)')
