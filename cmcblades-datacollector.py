@@ -27,6 +27,10 @@ cmc_u = "data"
 cmc_p = "<secret>"
 cmc_u1 = "data2"
 cmc_p1 = "<secret2>"
+glpi_url = 'https://glpi/glpi/apirest.php'
+glpi_atoken = '<your_token>'
+glpi_utoken = '<your_token>'
+glpi_url_start = 'https://glpi/'
 db_f = '/opt/cmcdb/blades.db'
 thlimit = 20
 f_log = '/var/log/blades.log'
@@ -225,16 +229,12 @@ def cmc_connect(cmc_host, user, secret):
 
 
 def get_glpi_data(svcTag):
-    glpi_url    = 'https://glpi/glpi/apirest.php'
-    glpi_atoken = '<your_token>'
-    glpi_utoken = '<your_token>'
-
     urllib3.disable_warnings()
 
     # tag could be empty or N/A
     if svcTag is None or svcTag == 'N/A' or svcTag == '' or svcTag.isspace():
         GlpiComment = None
-        GlpiUrl     = None
+        GlpiUrl = None
     else:
         h0 = {"Content-Type": "application/json", "App-Token": glpi_atoken, "Authorization": "user_token "+glpi_utoken}
         r0 = requests.get(glpi_url + "/initSession", headers = h0, verify = False)
@@ -248,7 +248,7 @@ def get_glpi_data(svcTag):
             logging.error('glpi ST ' + svcTag + ' ' + str(e))
             GlpiComment = None
         try:
-            GlpiUrl = json.loads(r1.content.decode('utf-8'))['data_html'][0]['1'].replace('/', 'https://glpi.int/', 1)
+            GlpiUrl = json.loads(r1.content.decode('utf-8'))['data_html'][0]['1'].replace('/', glpi_url_start, 1)
         except Exception as e:
             logging.error('glpi ST ' + svcTag + ' ' + str(e))
             GlpiUrl = None
@@ -334,11 +334,11 @@ def getcmcdata(cmc_host):
         svcTag = re.search('cfgServerServiceTag=(.*)$',data,flags=re.MULTILINE)
 
         if bmcMac:
-            blades[i]['BmcMac']     = bmcMac.group(1)
+            blades[i]['BmcMac'] = bmcMac.group(1)
         if nic1Mac:
-            blades[i]['Nic1Mac']    = nic1Mac.group(1)
+            blades[i]['Nic1Mac'] = nic1Mac.group(1)
         if nic2Mac:
-            blades[i]['Nic2Mac']    = nic2Mac.group(1)
+            blades[i]['Nic2Mac'] = nic2Mac.group(1)
         if name:
             blades[i]['ServerName'] = name.group(1)
         if bios:
@@ -465,6 +465,6 @@ if __name__ == "__main__":
         logging.error('Empty input data (no cmc)')
     # push info to zabbix
     for server in ('zabbix1', 'zabbix2'):
-        command = 'zabbix_sender -z ' + server + ' -p 10051 -s twiki -k cmcblades.worktime -o "' + str(int(time.time() - start_time0)) + '" >/dev/null 2>&1'
+        command = 'zabbix_sender -z ' + server + ' -p 10051 -s cmcblades -k cmcblades.worktime -o "' + str(int(time.time() - start_time0)) + '" >/dev/null 2>&1'
         os.system(command)
     logging.info('Finished in ' + str(time.time() - start_time0) + ' s')
