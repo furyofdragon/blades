@@ -20,6 +20,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 # ============= Common variables =========================
 groupID = "50" # CMC (hostgroup in zabbix with M1000E or VRTX chassis)
+zabbix1 = 'zabbix' # or IP
 z_url = "https://zabbix/"
 z_u = "api"
 z_p = "<secret>"
@@ -464,7 +465,7 @@ if __name__ == "__main__":
         print('Empty input data (no cmc)')
         logging.error('Empty input data (no cmc)')
     # push info to zabbix
-    for server in ('zabbix1', 'zabbix2'):
+    for server in ('zabbix1'):
         command = 'zabbix_sender -z ' + server + ' -p 10051 -s cmcblades -k cmcblades.worktime -o "' + str(int(time.time() - start_time0)) + '" >/dev/null 2>&1'
         os.system(command)
     logging.info('Finished in ' + str(time.time() - start_time0) + ' s')
