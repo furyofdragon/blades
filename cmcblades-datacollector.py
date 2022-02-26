@@ -446,6 +446,7 @@ if __name__ == "__main__":
                     alldata[k] = r.get(k)
         logging.info('Fetching all cmc finished in ' + str(time.time() - start_time1) + ' s')
         start_time2 = time.time()
+        # TODO: check DB exists and correct
         conn = sqlite3.connect(db_f, check_same_thread = False)
         conn.row_factory = sqlite3.Row
         # remove obsolete cmc
