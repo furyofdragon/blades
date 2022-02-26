@@ -12,25 +12,25 @@ import urllib3
 import logging
 import glob
 import os
-from collections  import OrderedDict
-from datetime     import datetime
-from pyzabbix     import ZabbixAPI
+from collections import OrderedDict
+from datetime import datetime
+from pyzabbix import ZabbixAPI
 from curses.ascii import isspace
-from jinja2       import Template
+from jinja2 import Template
 from concurrent.futures import ThreadPoolExecutor
 
 # ============= Common variables =========================
 groupID = "50" # CMC (hostgroup in zabbix with M1000E or VRTX chassis)
-z_url   = "https://zabbix/"
-z_u     = "api"
-z_p     = "<secret>"
-cmc_u   = "data"
-cmc_p   = "<secret>"
-cmc_u1  = "data2"
-cmc_p1  = "<secret2>"
-db_f    = '/opt/cmcdb/blades.db'
+z_url = "https://zabbix/"
+z_u = "api"
+z_p = "<secret>"
+cmc_u = "data"
+cmc_p = "<secret>"
+cmc_u1 = "data2"
+cmc_p1 = "<secret2>"
+db_f = '/opt/cmcdb/blades.db'
 thlimit = 20
-f_log   = '/var/log/blades.log'
+f_log = '/var/log/blades.log'
 datadir = '/var/www/html/cmc/data'
 # ========================================================
 
