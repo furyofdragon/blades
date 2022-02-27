@@ -10,7 +10,6 @@ import json
 import requests
 import urllib3
 import logging
-import glob
 import os
 from collections import OrderedDict
 from datetime import datetime
