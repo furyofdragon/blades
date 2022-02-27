@@ -1,6 +1,7 @@
 # Blades inventory for Dell M1000E and VRTX chassis
 
 Gets data from chassis and stores it in sqlite database.
+(Currently list of chassis obtains dynamicalli from zabbix by hostgroup).
 
 Data could be visible and filtered / searched via web interface.
 
