@@ -466,7 +466,7 @@ if __name__ == "__main__":
         print('Empty input data (no cmc)')
         logging.error('Empty input data (no cmc)')
     # push info to zabbix
-    for server in ('zabbix1'):
+    for server in (zabbix1):
         command = 'zabbix_sender -z ' + server + ' -p 10051 -s cmcblades -k cmcblades.worktime -o "' + str(int(time.time() - start_time0)) + '" >/dev/null 2>&1'
         os.system(command)
     logging.info('Finished in ' + str(time.time() - start_time0) + ' s')
