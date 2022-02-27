@@ -35,6 +35,9 @@ glpi_url_start = 'https://glpi/'
 db_f = '/opt/cmcdb/blades.db'
 thlimit = 20
 f_log = '/var/log/blades.log'
+
+DB_keys = ('cmc', 'slot', 'tag', 'type', 'name', 'powerstate', 'biosver', 'idracver', 'idracip', 'gen', 'bmcmac', 'nic1mac', 'nic2mac', 'glpiurl', 'glpicomm',
+          'note', 'recorddate', 'recordactive')
 # ========================================================
 
 
@@ -49,10 +52,7 @@ def get_current_time():
 def insert_new_data(conn, new_data):
     try:
         with conn:
-            query = '''insert into blades_data
-                 (cmc, slot, tag, type, name, powerstate, biosver, idracver, idracip, gen, bmcmac, nic1mac, nic2mac, glpiurl, glpicomm,
-                 note, recorddate, recordactive)
-                 values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'''
+            query = '''insert into blades_data (''' + ', '.join(DB_keys) + ''') values (''' + ', '.join(['' + '?' for k in DB_keys]) + ''')'''
             conn.execute(query, new_data)
     except Exception as e:
         print('Error occured: ', e, 'insert', new_data)
@@ -64,7 +64,7 @@ def db_get_blade(conn, cmc, slot):
         result = conn.execute('select * from blades_data where cmc = "' + cmc + '" and slot = "' + slot + '" and recordactive = "1" order by recorddate desc')
         blades = []
         for r in result:
-            blades.append([r['cmc'], r['slot'], r['tag'], r['type'], r['name'], r['powerstate'], r['biosver'], r['idracver'], r['idracip'], r['gen'], r['bmcmac'], r['nic1mac'], r['nic2mac'], r['glpiurl'], r['glpicomm']])
+            blades.append([r[k] for k in DB_keys[:-3]])
         if len(blades) > 0:
             return blades[0]
         else:
@@ -80,7 +80,7 @@ def db_get_cmcblades(conn, cmc):
         res = conn.execute("select * from blades_data where cmc = '" + cmc + "' and recordactive = '1' order by slot asc")
         blades = []
         for r in res:
-            blades.append([r['cmc'], r['slot'], r['tag'], r['type'], r['name'], r['powerstate'], r['biosver'], r['idracver'], r['idracip'], r['gen'], r['bmcmac'], r['nic1mac'], r['nic2mac'], r['glpiurl'], r['glpicomm'], r['note'], r['recorddate'], r['recordactive']])
+            blades.append([r[k] for k in DB_keys])
         if len(blades) > 0:
             return blades
         else:
@@ -113,24 +113,9 @@ def db_remove_cmc(conn, cmc):
         result = [row for row in conn.execute('select * from blades_data where cmc = "' + cmc + '" and recordactive = "1"')]
         for r in result:
             new_data = []
-            new_data.append(r['cmc'])
-            new_data.append(r['slot'])
-            new_data.append(r['tag'])
-            new_data.append(r['type'])
-            new_data.append(r['name'])
-            new_data.append(r['powerstate'])
-            new_data.append(r['biosver'])
-            new_data.append(r['idracver'])
-            new_data.append(r['idracip'])
-            new_data.append(r['gen'])
-            new_data.append(r['bmcmac'])
-            new_data.append(r['nic1mac'])
-            new_data.append(r['nic2mac'])
-            new_data.append(r['glpiurl'])
-            new_data.append(r['glpicomm'])
-            new_data.append(r['note'])
-            new_data.append(unixtime)
-            new_data.append(r['recordactive'])
+            new_data.append([r[k] for k in DB_keys])
+            # correct unixtime for 'recorddate'
+            new_data[0][len(DB_keys)-2] = unixtime
             insert_new_data(conn, new_data)
         conn.execute('update blades_data set recordactive = "0" where cmc = "' + cmc + '"')
     except Exception as e:
@@ -148,24 +133,9 @@ def db_remove_slot(conn, cmc, slot):
             result = [row for row in conn.execute('select * from blades_data where cmc = "' + cmc + '" and slot = "' + slot + '" and recordactive = "1"')]
             for r in result:
                 new_data = []
-                new_data.append(r['cmc'])
-                new_data.append(r['slot'])
-                new_data.append(r['tag'])
-                new_data.append(r['type'])
-                new_data.append(r['name'])
-                new_data.append(r['powerstate'])
-                new_data.append(r['biosver'])
-                new_data.append(r['idracver'])
-                new_data.append(r['idracip'])
-                new_data.append(r['gen'])
-                new_data.append(r['bmcmac'])
-                new_data.append(r['nic1mac'])
-                new_data.append(r['nic2mac'])
-                new_data.append(r['glpiurl'])
-                new_data.append(r['glpicomm'])
-                new_data.append(r['note'])
-                new_data.append(unixtime)
-                new_data.append(r['recordactive'])
+                new_data.append([r[k] for k in DB_keys])
+                # correct unixtime for 'recorddate'
+                new_data[0][len(DB_keys)-2] = unixtime
                 insert_new_data(conn, new_data)
             conn.execute('update blades_data set recordactive = "0" where cmc = "' + cmc + '" and slot = "' + slot + '"')
     except Exception as e:
